@@ -176,6 +176,7 @@ function renderWeightFields(box, kg = null) {
   const unit = getSettings().unit;
   const parts = unit === 'st' ? [['st', 'stone'], ['lb', 'pounds']] : [[unit, unit === 'kg' ? 'kilograms' : 'pounds']];
   const values = kg == null ? null : weightParts(kg, unit);
+  const error = box.closest('form')?.querySelector('.field-error');
   box.replaceChildren(...parts.map(([short, name], i) => {
     const wrap = document.createElement('label');
     wrap.className = 'weight-box';
@@ -185,6 +186,8 @@ function renderWeightFields(box, kg = null) {
     input.inputMode = short === 'st' ? 'numeric' : 'decimal';
     input.autocomplete = 'off';
     input.setAttribute('aria-label', `${box.dataset.label} in ${name}`);
+    if (error?.id) input.setAttribute('aria-describedby', error.id); // its message is read again on return to it
+    input.addEventListener('input', () => keepNumeric(input));
     if (values) input.value = values[i];
     const unitText = document.createElement('span');
     unitText.className = 'unit';
@@ -192,6 +195,26 @@ function renderWeightFields(box, kg = null) {
     wrap.append(input, unitText);
     return wrap;
   }));
+}
+
+// What a weight box lets in: digits and one decimal point. A comma becomes a point (some keyboards
+// and locales type one), and anything else is taken out as it's typed or pasted ('82.4 kg' → '82.4').
+// Not type="number": it lets in 'e', '+' and '-', the scroll wheel changes it, and browsers treat a
+// decimal comma differently.
+function cleanNumber(text) {
+  const s = text.replace(/,/g, '.').replace(/[^\d.]/g, '');
+  const dot = s.indexOf('.');
+  return dot < 0 ? s : s.slice(0, dot + 1) + s.slice(dot + 1).replace(/\./g, '');
+}
+
+// On each change to a weight box: clean it, keeping the caret in its place.
+function keepNumeric(input) {
+  const value = input.value;
+  const clean = cleanNumber(value);
+  if (clean === value) return;
+  const caret = cleanNumber(value.slice(0, input.selectionStart ?? value.length)).length;
+  input.value = clean;
+  input.setSelectionRange(caret, caret);
 }
 
 function setWeightPlaceholders(box, kg) {
