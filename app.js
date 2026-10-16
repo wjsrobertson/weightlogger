@@ -36,6 +36,9 @@ const els = {
   settingsDialog: document.getElementById('settings-dialog'),
   unitButtons: document.querySelectorAll('[data-unit]'),
   themeButtons: document.querySelectorAll('[data-theme-choice]'),
+  installHelp: document.getElementById('install-help'),
+  installActions: document.getElementById('install-actions'),
+  installBtn: document.getElementById('install-btn'),
   dataSummary: document.getElementById('data-summary'),
   backupSave: document.getElementById('backup-save'),
   backupLoad: document.getElementById('backup-load'),
@@ -882,6 +885,7 @@ function renderSettings() {
   const { unit, theme } = getSettings();
   for (const b of els.unitButtons) b.setAttribute('aria-checked', String(b.dataset.unit === unit));
   for (const b of els.themeButtons) b.setAttribute('aria-checked', String(b.dataset.themeChoice === theme));
+  renderInstall();
   const entries = getEntries();
   els.dataSummary.textContent = entries.length
     ? `${entries.length} weigh-in${entries.length === 1 ? '' : 's'}, from ${formatDate(entries[0].at)} to ${formatDate(entries.at(-1).at)}.`
@@ -913,6 +917,12 @@ function bindSettings() {
     if (file) loadBackup(file);
   });
   els.csvExport.addEventListener('click', exportCsv);
+  els.installBtn.addEventListener('click', async () => {
+    if (!installPrompt) return;
+    await installPrompt.prompt();
+    installPrompt = null;
+    renderInstall();
+  });
 }
 
 // Dialogs close from their ✕ and Cancel buttons, and from a click on the backdrop.
@@ -1019,7 +1029,35 @@ function hideToast() {
   t.hidden = true;
 }
 
-// ---------- offline ----------
+// ---------- install and offline ----------
+// Settings → Install, as in learnthai: Chrome/Android's own install prompt behind a button, steps
+// for Safari, which has no prompt.
+
+let installPrompt = null; // Chrome/Android's deferred install prompt
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  installPrompt = e;
+  renderInstall();
+});
+window.addEventListener('appinstalled', () => {
+  installPrompt = null;
+  renderInstall();
+});
+
+function isInstalled() {
+  return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+}
+
+function renderInstall() {
+  els.installActions.hidden = !installPrompt || IS_IOS;
+  els.installHelp.textContent =
+    isInstalled() ? 'Installed: running as an app.' :
+    !window.isSecureContext ? 'Installing needs an https:// address, and this one is plain http.' :
+    IS_IOS ? 'Tap Share (□↑), then "Add to Home Screen". It then opens full-screen, like an app.' :
+    installPrompt ? 'Adds Weight Logger to your home screen or app list.' :
+    "Use your browser's menu to install it, if your browser supports that.";
+}
 
 function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return; // also absent over plain http on a LAN address
