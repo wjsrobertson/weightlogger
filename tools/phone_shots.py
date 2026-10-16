@@ -1,7 +1,7 @@
 """Screenshot the app at desktop and phone sizes via headless Chromium + a minimal stdlib WebSocket
 CDP client (learnthai's tools/phone_shots.py, adapted; Node 18 has no WebSocket).
 
-    python3 -u tools/phone_shots.py <out_dir> <label>   # needs the server on :8766 and snap chromium
+    python3 -u tools/phone_shots.py <out_dir> <label>   # needs the server on :8777 and snap chromium
     CHROME=~/.cache/ms-playwright/chromium-1134/chrome-linux/chrome python3 -u tools/phone_shots.py …
 
 Seeds a throwaway profile with ~4 months of sample weigh-ins (missed days, some days twice, a goal),
@@ -11,7 +11,8 @@ light, and st & lb. Prints console errors and anything wider than the viewport (
 import base64, json, os, shutil, socket, struct, subprocess, sys, tempfile, time, urllib.request
 
 PORT = 9334
-URL = 'http://localhost:8766/'
+# The app's server: python3 -m http.server 8777. Not 8766, which is the one used by hand.
+URL = os.environ.get('APP_URL', 'http://localhost:8777/')
 PROFILE = os.path.expanduser('~/snap/chromium/common/weightlogger-shots-profile')  # throwaway, snap-accessible
 DEVICES = {'desktop': (1100, 900, False), 'iphone14': (390, 844, True), 'iphoneSE': (375, 667, True)}
 
@@ -147,7 +148,7 @@ def load(ws, ready="document.querySelectorAll('#entries li').length > 0"):
             if js(ws, ready): return
         except RuntimeError:
             pass
-    raise SystemExit('app did not load (is the server running on :8766?)')
+    raise SystemExit(f'app did not load (is the server running at {URL}?)')
 
 
 def overflow(ws):
