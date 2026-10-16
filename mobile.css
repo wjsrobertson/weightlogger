@@ -1,0 +1,44 @@
+/* Phone overrides, loaded after styles.css with media="(max-width: 600px)", so desktop is untouched. */
+
+html { -webkit-tap-highlight-color: transparent; }
+button, input { touch-action: manipulation; }   /* no double-tap zoom, no tap delay */
+.input { font-size: 16px; }                      /* iOS zooms into inputs under 16px */
+
+.topbar { padding: 10px 16px; padding-top: max(10px, env(safe-area-inset-top, 0px)); }
+.page { padding: 12px 16px 40px; gap: 12px; }
+.panel { padding: 14px; }
+
+.log-form { gap: 10px; }
+.log-submit { padding: 0 20px; }
+
+.stats { gap: 10px; }
+.stat.top, .stat.pair { grid-column: span 3; }
+.stat.goal-tile { grid-column: span 6; } /* after the line above, which it overrides */
+.stat { padding: 10px 12px; }
+/* 21px from 375px wide, a little smaller below, so '19 st 12.9 lb' fits a half-width tile at 320px.
+   Latest shares its row with Trend here, so it's the same size. */
+.stat-value, .stat.hero .stat-value { font-size: clamp(17px, 5.6vw, 21px); }
+
+.chart { height: 220px; }
+.seg-btn { min-height: 36px; padding: 0 11px; }
+
+/* Dialogs become full-screen sheets. */
+.sheet {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+.sheet-form { height: 100%; }
+.sheet-head { padding-top: max(14px, env(safe-area-inset-top, 0px)); }
+.sheet-body { flex: 1; align-content: start; }
+.sheet-foot { padding-bottom: max(12px, env(safe-area-inset-bottom, 0px)); }
+
+/* History's month headings: the count and average on a line of their own under the name, for every
+   month alike (a long name like September pushed only some of them onto two lines). */
+.month summary { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; }
+.month summary::before { grid-row: span 2; }
+.month-info { margin-left: 0; }

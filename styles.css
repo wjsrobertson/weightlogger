@@ -1,0 +1,412 @@
+/* Themes (Settings → Theme; applyTheme() in app.js and the inline script in index.html set
+   data-theme on <html>). Dark is the default; every colour in the app comes from these. The
+   palette is learnthai's Dark and Light. */
+:root {
+  color-scheme: dark;
+  --bg: #0f1115;
+  --bg-glow: #1a2030;                       /* the soft glow at the top of the page */
+  --panel: #171a21;
+  --panel-2: #1f232c;
+  --ink: #e8ecf2;
+  --muted: #93a0b3;
+  --press: rgba(255, 255, 255, .1);         /* the tint over a button while it's pressed */
+  --accent: #f7b733;
+  --on-accent: #111;                        /* text on accent-coloured buttons */
+  --danger: #f87171;
+  --border: #5a6681;                        /* 3:1 on the panels (WCAG 1.4.11) */
+  --control-border: #606d8a;                /* outlines of controls: 3:1 on every background */
+  --hover: rgba(255, 255, 255, .03);
+  --topbar: rgba(15, 17, 21, .7);
+  --backdrop: rgba(0, 0, 0, .6);
+  --radius: 14px;
+  --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  /* The chart (on --panel). Trend and dots were checked with the dataviz skill's validator:
+     both 3:1 on the panel, ΔE 16 under colour-blindness; the dots are the de-emphasis grey. */
+  --trend: #c98500;
+  --dot: #7c879a;
+  --grid: #262b36;                          /* hairlines, one step off the panel */
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f5f4f0; --bg-glow: #ffffff; --panel: #ffffff; --panel-2: #eeece6;
+  --ink: #1f2328; --muted: #5b6471; --accent: #9e5a00; --on-accent: #ffffff;
+  --danger: #c0392b;
+  --border: #dedad1; --control-border: #8a8782; --hover: rgba(0, 0, 0, .025);
+  --topbar: rgba(245, 244, 240, .85); --backdrop: rgba(20, 20, 20, .35); --shadow: 0 8px 24px rgba(40, 35, 20, .1);
+  --press: rgba(0, 0, 0, .08);
+  --trend: #b06400; --dot: #8a919c; --grid: #ebe8e1;
+}
+
+* { box-sizing: border-box; }
+
+/* Pressed: a quick tint over anything tapped. A phone has no hover; iOS shows :active only with a
+   touchstart listener, which app.js adds. */
+button:active:not(:disabled) { box-shadow: inset 0 0 0 999px var(--press); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  /* A solid colour under the gradient, so an iOS bounce never shows the browser's white. */
+  background: radial-gradient(1200px 800px at 50% -10%, var(--bg-glow) 0%, var(--bg) 60%) fixed var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  min-height: 100vh;
+  -webkit-text-size-adjust: 100%;
+}
+html { overflow-x: hidden; overflow-x: clip; }
+body {
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+[hidden] { display: none !important; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+h1, h2, h3 { margin: 0; }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- top bar ---------- */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 24px;
+  padding-top: max(12px, env(safe-area-inset-top, 0px));
+  border-bottom: 1px solid var(--border);
+  background: var(--topbar);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.topbar h1 { font-size: 20px; font-weight: 650; letter-spacing: .01em; }
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--control-border);
+  border-radius: 50%;
+  background: var(--panel);
+  color: var(--muted);
+}
+.icon-btn:hover { color: var(--ink); }
+.line-icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- page ---------- */
+
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 20px 24px 48px;
+  display: grid;
+  gap: 16px;
+}
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px 18px;
+}
+.panel h2 { font-size: 15px; font-weight: 600; color: var(--muted); }
+
+/* ---------- controls ---------- */
+
+.btn {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--control-border);
+  border-radius: 10px;
+  background: var(--panel-2);
+  color: var(--ink);
+  font-size: 15px;
+  white-space: nowrap;
+}
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 650; }
+.btn.danger { background: transparent; border-color: var(--danger); color: var(--danger); }
+.link-btn {
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.input {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--control-border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 15px;
+  min-width: 0;
+}
+.input::placeholder { color: var(--muted); opacity: .8; }
+.input[aria-invalid="true"] { border-color: var(--danger); }
+
+/* The weight inputs (app.js renderWeightFields): one box with its unit inside at the end, or two for
+   st & lb. The box (a <label>) draws the border, so the unit takes none of the row's width. */
+.weight-fields { display: flex; gap: 8px; min-width: 0; }
+.weight-box {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  flex: 1 1 0;
+  padding-right: 12px;
+  border: 1px solid var(--control-border);
+  border-radius: 10px;
+  background: var(--bg);
+  cursor: text;
+}
+.weight-box:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.weight-box:has(.input[aria-invalid="true"]) { border-color: var(--danger); }
+.weight-box .input {
+  flex: 1;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  font-size: 22px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  min-height: 46px;
+}
+.weight-box .input:focus-visible { outline: none; }
+.weight-box .unit { flex: none; color: var(--muted); font-size: 15px; }
+
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--control-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.seg-btn {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 0;
+  border-left: 1px solid var(--control-border);
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+}
+.seg-btn:first-child { border-left: 0; }
+.seg-btn[aria-pressed="true"], .seg-btn[aria-checked="true"] { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+
+.field-error { margin: 8px 0 0; color: var(--danger); font-size: 14px; }
+.hint { margin: 8px 0 0; color: var(--muted); font-size: 13.5px; line-height: 1.45; }
+
+/* ---------- log form ---------- */
+
+/* Two columns (see index.html): the weight and the note share the left one, so they're the same width;
+   Log and the time's toggle share the right one, as wide as the wider of them. */
+.log-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+.log-submit { justify-self: stretch; align-self: stretch; padding: 0 24px; font-size: 17px; }
+.log-form .field-error, .log-when { grid-column: 1 / -1; }
+.log-form .field-error { margin: 0; }
+.log-when-toggle { justify-self: center; min-height: 40px; white-space: nowrap; }
+
+/* ---------- stats ---------- */
+
+/* Goal, Latest and Trend in a row of three, over 7 days and 30 days in a row of two; mobile.css
+   gives Goal a row of its own and puts the rest in pairs. */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+.stat.top { grid-column: span 2; }
+.stat.pair { grid-column: span 3; }
+.stat {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  min-width: 0;
+}
+.stat-label { font-size: 13px; color: var(--muted); }
+.stat-value { margin-top: 4px; font-size: 24px; font-weight: 650; white-space: nowrap; }
+.stat-sub { margin-top: 2px; font-size: 13px; color: var(--muted); }
+.stat.hero .stat-value { font-size: 30px; }
+/* The Goal tile is a button: tapping it sets or changes the goal (app.js openGoal). */
+button.stat { position: relative; width: 100%; text-align: left; }
+button.stat:hover { border-color: var(--control-border); }
+.stat-edit { position: absolute; top: 10px; right: 10px; width: 16px; height: 16px; color: var(--muted); }
+.goal-tile.unset .stat-sub { color: var(--accent); }
+
+/* ---------- chart ---------- */
+
+.chart-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.legend { display: flex; gap: 16px; margin: 10px 0 4px; padding: 0; list-style: none; font-size: 13px; color: var(--muted); }
+.legend li { display: inline-flex; align-items: center; gap: 6px; }
+.key { display: inline-block; }
+.key-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dot); }
+.key-line { width: 16px; height: 2px; border-radius: 1px; background: var(--trend); }
+.key-goal { width: 16px; border-top: 1.5px dashed var(--muted); }
+
+.chart {
+  position: relative;
+  height: 240px;          /* the plot and its x-axis band together (app.js CHART_PAD) */
+  margin: 0 -6px;
+  touch-action: pan-y;    /* a vertical swipe scrolls the page; a sideways drag scrubs the points */
+  user-select: none;
+  -webkit-user-select: none;
+  border-radius: 8px;
+}
+.chart:focus-visible { outline-offset: 0; }
+.chart svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.chart .grid { stroke: var(--grid); stroke-width: 1; }
+.chart .tick { fill: var(--muted); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.chart .goal { stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.chart .goal-label { fill: var(--muted); font-size: 11.5px; }
+.chart .trend { fill: none; stroke: var(--trend); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.chart .dot { fill: var(--dot); stroke: var(--panel); stroke-width: 2; }
+.chart .dot.dense { stroke: none; }
+.chart .cross { stroke: var(--muted); stroke-width: 1; }
+.chart .hi-dot { fill: var(--ink); stroke: var(--panel); stroke-width: 2; }
+.chart .hi-trend { fill: var(--trend); stroke: var(--panel); stroke-width: 2; }
+.chart-empty { margin: 16px 0 8px; color: var(--muted); font-size: 14px; }
+
+.tooltip {
+  position: absolute;
+  top: 4px;
+  min-width: 130px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel-2);
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  pointer-events: none;
+}
+.tip-when { color: var(--muted); margin-bottom: 4px; }
+.tip-row { display: flex; align-items: center; gap: 8px; }
+.tip-row strong { font-size: 15px; font-variant-numeric: tabular-nums; }
+.tip-row span { color: var(--muted); }
+.tip-note { margin-top: 4px; color: var(--muted); max-width: 200px; overflow-wrap: anywhere; }
+
+/* ---------- history ---------- */
+
+.empty { color: var(--muted); margin: 12px 0 4px; }
+.history { scroll-margin-top: 80px; }      /* clear of the sticky top bar after Show recent only */
+.history-list { margin: 8px -8px 0; }
+.entries { list-style: none; margin: 0; padding: 0; }
+.entry {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 12px;
+  width: 100%;
+  padding: 10px 8px;
+  border: 0;
+  border-top: 1px solid var(--grid);
+  border-radius: 0;
+  background: none;
+  text-align: left;
+}
+.entries li:first-child .entry { border-top: 0; }
+.entry:hover { background: var(--hover); }
+.entry-when { font-size: 15px; }
+.entry-time { color: var(--muted); }
+.entry-note { grid-column: 1; font-size: 13.5px; color: var(--muted); overflow-wrap: anywhere; }
+.entry-weight { grid-column: 2; grid-row: 1; text-align: right; font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.entry-delta { grid-column: 2; grid-row: 2; text-align: right; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.more-btn { margin-top: 10px; width: 100%; }
+
+/* Show all: a section per month that opens and closes, its count and average beside the name. */
+.month + .month { border-top: 1px solid var(--grid); }
+.month summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+  padding: 12px 8px;
+  list-style: none;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.month summary::-webkit-details-marker { display: none; }
+.month summary::before {                   /* a chevron: right when closed, down when open */
+  content: '';
+  align-self: center;
+  width: 7px;
+  height: 7px;
+  margin: 0 4px 0 2px;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: rotate(-45deg);
+  transition: transform .15s;
+}
+.month[open] summary::before { transform: rotate(45deg); }
+.month summary:hover { background: var(--hover); }
+.month-name { font-weight: 600; }
+.month-info { margin-left: auto; color: var(--muted); font-size: 13.5px; }
+.month .entries li:first-child .entry { border-top: 1px solid var(--grid); }
+
+/* ---------- dialogs ---------- */
+
+.sheet {
+  width: min(460px, calc(100vw - 32px));
+  max-height: calc(100dvh - 48px);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+.sheet::backdrop { background: var(--backdrop); }
+.sheet-form { display: flex; flex-direction: column; max-height: inherit; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--grid); }
+.sheet-head h2 { font-size: 17px; font-weight: 650; }
+.sheet-close { width: 34px; height: 34px; font-size: 14px; }
+.sheet-body { padding: 16px 18px; overflow-y: auto; overscroll-behavior: contain; display: grid; gap: 14px; }
+.sheet-foot { display: flex; gap: 8px; padding: 12px 18px; border-top: 1px solid var(--grid); }
+.spacer { flex: 1; }
+.field { display: grid; gap: 6px; }
+.field-label { font-size: 13px; color: var(--muted); }
+
+.setting { display: grid; gap: 8px; justify-items: start; }
+.setting + .setting { padding-top: 14px; border-top: 1px solid var(--grid); }
+.setting h3 { font-size: 15px; font-weight: 600; }
+.setting .hint { margin: 0; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ---------- toast and update bar ---------- */
+
+.toast, .update-bar {
+  position: fixed;
+  inset: auto;           /* the toast is a popover: undo the browser's centring */
+  margin: 0;
+  left: 50%;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: calc(100vw - 32px);
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel-2);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+  font-size: 14.5px;
+}
+.update-bar .btn { min-height: 34px; }
